@@ -7,10 +7,12 @@ import matplotlib.pyplot as plt
 def readfile(path):
   return np.genfromtxt(path, delimiter=';', skip_header=9, encoding='latin1', dtype = None)
 
-def _plot(x, y, out_file, bbox_inches = 'tight', metadata = dict()):
+def _plot(x, y, out_file, bbox_inches = 'tight', metadata = dict(), xlim = None):
   fig = plt.figure()
   ax = fig.gca()
   ax.plot(x, y)
+  if xlim != None:
+    plt.xlim(xlim)
   fig.savefig(out_file, bbox_inches = bbox_inches, metadata = {**metadata, 'CreationDate': None})
   plt.close()
   
