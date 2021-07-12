@@ -31,7 +31,7 @@ Ne = len(data)
 Te = data[1, 0] - data[0, 0]
 print(Te)
 
-_plot(np.arange(Ne) * Te, data[:, 1], DIR + '.pdf')
+_plot(np.arange(Ne) * Te, data[:, 1], DIR + '_val.pdf')
 
 spectre = np.fft.fftshift(np.fft.fft(data[:, 1])) / Ne
 frequences = np.arange(Ne) * 1.0 / (Te * Ne)
