@@ -33,6 +33,7 @@ files = sorted(files, key = sort_func)
 data = np.empty(shape = [0, 2])
 
 for f in files:
+  print(f)
   d = readfile(f)
   data = np.append(data, d, axis = 0)
 
