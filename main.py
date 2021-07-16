@@ -3,6 +3,7 @@ import glob
 import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
+import re
 
 def readfile(path):
   return np.genfromtxt(path, delimiter=';', skip_header=9, encoding='latin1', dtype = None)
@@ -16,11 +17,19 @@ def _plot(x, y, out_file, bbox_inches = 'tight', metadata = dict(), xlim = None)
   fig.savefig(out_file, bbox_inches = bbox_inches, metadata = {**metadata, 'CreationDate': None})
   plt.close()
   
+def sort_func(x):
+  r = []
+  for s in re.split(r'([^0-9.]+)', x):
+    try:
+      r.append(float(s))
+    except ValueError:
+      r.append(s)
+  return r
 
 DIR='test_03'
 
 files = glob.glob(DIR + '/*.csv')
-files = sorted(files)
+files = sorted(files, key = sort_func)
 data = np.empty(shape = [0, 2])
 
 for f in files:
