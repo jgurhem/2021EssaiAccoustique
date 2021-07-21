@@ -75,6 +75,8 @@ spectre = np.fft.fft(data[:, 1]) / Ne
 _plot(frequences, np.abs(spectre), DIR + '_fft.pdf')
 np.savetxt(DIR + '_fft.csv', np.abs(spectre), delimiter=",")
 
+# https://www.f-legrand.fr/scidoc/docimg/sciphys/caneurosmart/pysignal/pysignal.html
+# 3.c reduction du bruit
 P=20
 b1 = signal.firwin(numtaps= 2 * P + 1, cutoff = [0.1], window = 'hann', nyq = 0.5)
 a1 = [1.0]
