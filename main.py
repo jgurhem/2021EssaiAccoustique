@@ -51,7 +51,7 @@ for f in files:
 
 Ne = len(data)
 Te = data[1, 0] - data[0, 0]
-print(Te)
+print('delta t', Te)
 
 _plot(np.arange(Ne) * Te, data[:, 1], DIR + '_val.pdf')
 np.savetxt(DIR + '_val.csv', data[:, 1], delimiter=",")
