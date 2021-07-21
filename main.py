@@ -4,6 +4,8 @@ import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
 import re
+import argparse
+import sys
 
 def readfile(path):
   return np.genfromtxt(path, delimiter=';', skip_header=9, encoding='latin1', dtype = None)
@@ -26,11 +28,21 @@ def sort_func(x):
       r.append(s)
   return r
 
-DIR='test_03'
+parser = argparse.ArgumentParser()
+parser.add_argument('dir', type=str, help='path to the directory containing the csv files')
+parser.add_argument('-s', type=int, help='first file to consider', dest='start', default=0)
+parser.add_argument('-e', type=int, help='last file to consider', dest='end', default=None)
+args = parser.parse_args()
+
+DIR=args.dir
 
 files = glob.glob(DIR + '/*.csv')
 files = sorted(files, key = sort_func)
+files = files[args.start:args.end]
 data = np.empty(shape = [0, 2])
+
+if len(files) < 1:
+  sys.exit(0)
 
 for f in files:
   print(f)
