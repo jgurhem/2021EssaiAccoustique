@@ -48,7 +48,10 @@ parser.add_argument('-s', type=int, help='first file to consider', dest='start',
 parser.add_argument('-e', type=int, help='last file to consider', dest='end', default=None)
 args = parser.parse_args()
 
-DIR=args.dir
+noise_red = False
+threshold = True
+
+DIR=args.dir + '/'
 
 files = glob.glob(DIR + '/*.csv')
 files = sorted(files, key = sort_func)
@@ -66,6 +69,8 @@ for f in files:
 Ne = len(data)
 Te = data[1, 0] - data[0, 0]
 print('delta t', Te)
+print('number of points', Ne)
+print('time', Ne * Te / 1e6, 's')
 
 _plot(np.arange(Ne) * Te, data[:, 1], DIR + '_val.pdf')
 np.savetxt(DIR + '_val.csv', data[:, 1], delimiter=",")
@@ -75,13 +80,21 @@ spectre = np.fft.fft(data[:, 1]) / Ne
 _plot(frequences, np.abs(spectre), DIR + '_fft.pdf')
 np.savetxt(DIR + '_fft.csv', np.abs(spectre), delimiter=",")
 
-# https://www.f-legrand.fr/scidoc/docimg/sciphys/caneurosmart/pysignal/pysignal.html
-# 3.c reduction du bruit
-P=20
-b1 = signal.firwin(numtaps= 2 * P + 1, cutoff = [0.1], window = 'hann', nyq = 0.5)
-a1 = [1.0]
-zi = signal.lfiltic(b1, a1, x=[0], y=[0])
-[y0, zf] = signal.lfilter(b1, a1, data[:, 1], zi=zi)
+if noise_red:
+  # https://www.f-legrand.fr/scidoc/docimg/sciphys/caneurosmart/pysignal/pysignal.html
+  # 3.c reduction du bruit
+  P=20
+  b1 = signal.firwin(numtaps= 2 * P + 1, cutoff = [0.1], window = 'hann', nyq = 0.5)
+  a1 = [1.0]
+  zi = signal.lfiltic(b1, a1, x=[0], y=[0])
+  [y0, zf] = signal.lfilter(b1, a1, data[:, 1], zi=zi)
+elif threshold:
+  threshold_value = 0.1
+  y0 = data[:, 1]
+  y0[y0 < threshold_value] = 0
+else:
+  y0 = data[:, 1]
+
 _plot(np.arange(Ne) * Te, y0, DIR + '_rif.pdf')
 np.savetxt(DIR + '_rif.csv', y0, delimiter=",")
 
