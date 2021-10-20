@@ -123,14 +123,6 @@ exit(0)
 
 
 
-
-
-
-relative_dates.append(relative_dates[-1] + 50000*Te)
-
-print(relative_dates[:-1])
-
-
 Ne = len(y0)
 FileSize = Ne / len(files)
 
