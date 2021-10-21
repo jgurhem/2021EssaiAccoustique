@@ -118,7 +118,6 @@ for i in range(len(relative_dates)):
 print(valeurs_calees_y[50000:50100])
 print(valeurs_calees_x[50000:50100])
 
-
 exit(0)
 
 
