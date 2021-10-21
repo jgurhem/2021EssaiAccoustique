@@ -124,7 +124,7 @@ print('nombre de valeurs', nombredevaleur)
 FileSize = nombredevaleur / len(files)
 
 frequences = np.arange(args.start * FileSize, args.end * FileSize) * 1.0 / (Te * nombredevaleur)
-spectre = np.fft.fft(data[:, 1]) / Ne
+spectre = np.fft.fft(valeurs_calees_y) / Ne
 _plot(frequences, np.abs(spectre), DIR + '_fft.pdf')
 np.savetxt(DIR + '_fft.csv', np.abs(spectre), delimiter=",")
 
