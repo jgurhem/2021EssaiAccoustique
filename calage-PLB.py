@@ -118,7 +118,12 @@ for i in range(len(relative_dates)):
 _plot(valeurs_calees_x, valeurs_calees_y, DIR + '_newcalage.pdf')
 np.savetxt(DIR + '_newcalage.csv', np.column_stack((valeurs_calees_x, valeurs_calees_y)), delimiter=";")
 
-frequences = np.arange(args.start * number_all_points, args.end * number_all_points) * 1.0 / (Te * Ne)
+nombredevaleur = len(valeurs_calees_y)
+print('nombre de valeurs', nombredevaleur)
+
+FileSize = nombredevaleur / len(files)
+
+frequences = np.arange(args.start * FileSize, args.end * FileSize) * 1.0 / (Te * nombredevaleur)
 spectre = np.fft.fft(data[:, 1]) / Ne
 _plot(frequences, np.abs(spectre), DIR + '_fft.pdf')
 np.savetxt(DIR + '_fft.csv', np.abs(spectre), delimiter=",")
