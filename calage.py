@@ -115,8 +115,11 @@ for i in range(len(relative_dates)):
 		valeurs_calees_y.append(all_values[i][j])
 		valeurs_calees_x.append((j + incr)*Te)
 
-print(valeurs_calees_y[50000:50100])
-print(valeurs_calees_x[50000:50100])
+#print(valeurs_calees_y[50000:50100])
+#print(valeurs_calees_x[50000:50100])
+
+_plot(valeurs_calees_x, valeurs_calees_y, DIR + '_newcalage.pdf')
+np.savetxt(DIR + '_newcalage.csv', np.column_stack((valeurs_calees_x, valeurs_calees_y)), delimiter=";")
 
 exit(0)
 
