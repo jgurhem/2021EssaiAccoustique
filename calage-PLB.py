@@ -27,12 +27,16 @@ def readfile(path, mint, maxt):
       coupsint = coupsint + 1
   return v, t, data, coupsint
 
-def _plot(x, y, out_file, bbox_inches = 'tight', metadata = dict(), xlim = None):
+def _plot(x, y, out_file, bbox_inches = 'tight', metadata = dict(), xlim = None, xlabel = None, ylabel = None):
   fig = plt.figure()
   ax = fig.gca()
   ax.plot(x, y)
   if xlim != None:
     plt.xlim(xlim)
+  if xlabel != None:
+    plt.xlabel(xlabel)
+  if ylabel != None:
+    plt.ylabel(ylabel)
   fig.savefig(out_file, bbox_inches = bbox_inches, metadata = {**metadata, 'CreationDate': None})
   plt.close()
 
@@ -70,7 +74,7 @@ FileDuration = 0.25
 ThresholdMax = 0.05
 ThresholdMin = -0.05
 
-files = glob.glob(DIR + '/*.csv')
+files = glob.glob(DIR + '/capteurJpetitPLB4*.csv')
 files = sorted(files, key = sort_func)
 NAllFiles = len(files)
 files = files[args.start:args.end]
@@ -115,84 +119,82 @@ for i in range(len(relative_dates)):
 		valeurs_calees_y.append(all_values[i][j])
 		valeurs_calees_x.append((j + incr)*Te)
 
+		
+valeurs_calees_y = [i for _,i in sorted(zip(valeurs_calees_x, valeurs_calees_y))]
+valeurs_calees_x = sorted(valeurs_calees_x)
+
 _plot(valeurs_calees_x, valeurs_calees_y, DIR + '_newcalage.pdf')
 np.savetxt(DIR + '_newcalage.csv', np.column_stack((valeurs_calees_x, valeurs_calees_y)), delimiter=";")
+
+plt.ylabel(r"Amplitude")
+plt.title(r"Signal sonore")
 
 nombredevaleur = len(valeurs_calees_y)
 print('nombre de valeurs', nombredevaleur)
 
-FileSize = nombredevaleur / len(files)
 
-frequences = np.arange(args.start * FileSize, args.end * FileSize) * 1.0 / (Te * nombredevaleur)
+Ne = len(valeurs_calees_y)
+frequences = np.array(valeurs_calees_x) * 1.0 / (Te * Ne)
 spectre = np.fft.fft(valeurs_calees_y) / Ne
-_plot(frequences, np.abs(spectre), DIR + '_fft.pdf')
+_plot(frequences, np.abs(spectre), DIR + '_fft.pdf', xlabel = "Frequence", ylabel = "FFT")
 np.savetxt(DIR + '_fft.csv', np.abs(spectre), delimiter=",")
 
-exit(0)
 
-
-
-Ne = len(y0)
-FileSize = Ne / len(files)
-
-print('FileSize', FileSize)
 print('delta t', Te)
 print('Points', Ne)
 
-Max = max(y0)
+Max = max(valeurs_calees_y)
 print('amplitude max', Max)
 
-Min = min(y0)
+Min = min(valeurs_calees_y)
 print('amplitude min', Min)
 
 
-
-print(coups)
 	
 energies = []
-for i in range(len(all_values)):
-  area = trapz(np.square(all_values[i]), relative_dates[i] + np.arange(50000) / 50000 * (relative_dates[i+1] - relative_dates[i]))
+for i in range(len(valeurs_calees_y) - 1):
+  area = (valeurs_calees_y[i]**2 + valeurs_calees_y[i+1]**2) * (valeurs_calees_x[i+1] - valeurs_calees_x[i]) / 2
   energies.append(area)
-print(energies)
 
-_plot(relative_dates[:-1], y0, DIR + '_calage.pdf')
-np.savetxt(DIR + '_calage.csv', np.column_stack((relative_dates[:-1], y0)), delimiter=";")
 
-_plot(relative_dates[:-1], energies, DIR + '_calage_energies.pdf')
-np.savetxt(DIR + '_calage_energies.csv', np.column_stack((relative_dates[:-1], energies)), delimiter=";")
-
-_plot(relative_dates[:-1], coups, DIR + '_calage_coups.pdf')
-np.savetxt(DIR + '_calage_coups.csv', np.column_stack((relative_dates[:-1], coups)), delimiter=";")
-
-exit(0)
+_plot(valeurs_calees_x[:-1], energies, DIR + '_calage_energies.pdf')
+np.savetxt(DIR + '_calage_energies.csv', np.column_stack((valeurs_calees_x[:-1], valeurs_calees_y[:-1], energies)), delimiter=";")
 
 
 Coups = 0
-for i in y0:
+for i in valeurs_calees_y:
   if i > ThresholdMax or i < ThresholdMin:
     Coups = Coups + 1
 
 CrossThresholdStart = 0
 test = True
-while y0[CrossThresholdStart] < ThresholdMax and y0[CrossThresholdStart] > ThresholdMin and CrossThresholdStart < len(y0) - 1:
+while valeurs_calees_y[CrossThresholdStart] < ThresholdMax and valeurs_calees_y[CrossThresholdStart] > ThresholdMin and CrossThresholdStart < len(valeurs_calees_y) - 1:
   CrossThresholdStart += 1
 
-CrossThresholdEnd = len(y0) - 1
-while y0[CrossThresholdEnd] < ThresholdMax and y0[CrossThresholdEnd] > ThresholdMin and CrossThresholdEnd > 0:
+CrossThresholdEnd = len(valeurs_calees_y) - 1
+while valeurs_calees_y[CrossThresholdEnd] < ThresholdMax and valeurs_calees_y[CrossThresholdEnd] > ThresholdMin and CrossThresholdEnd > 0:
   CrossThresholdEnd -= 1
 
 CrossMax = 0
-while y0[CrossMax] != Max and CrossMax < len(y0) - 1:
+while valeurs_calees_y[CrossMax] != Max and CrossMax < len(valeurs_calees_y) - 1:
   CrossMax += 1
 
 print ('CrossThresholdStart', CrossThresholdStart)
 print ('CrossMax', CrossMax)
 print ('CrossThresholdEnd', CrossThresholdEnd)
 
-Aire = 0
-for i in range(len(y0)-1):
-	Aire = (y0[i]**2+y0[i+1]**2)/2*Te
-print('Energie', Aire)
+
+exit(0)
+
+_plot(valeurs_calees_x[:-1], coups, DIR + '_calage_coups.pdf')
+np.savetxt(DIR + '_calage_coups.csv', np.column_stack((valeurs_calees_x, coups)), delimiter=";")
+
+
+
+
+
+
+
 
 timeStart = Te * (CrossThresholdStart + args.start * FileSize)
 timeMax = Te * (CrossMax + args.start * FileSize)
