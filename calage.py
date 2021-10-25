@@ -118,8 +118,65 @@ for i in range(len(relative_dates)):
 #print(valeurs_calees_y[50000:50100])
 #print(valeurs_calees_x[50000:50100])
 
-_plot(valeurs_calees_x, valeurs_calees_y, DIR + '_newcalage.pdf')
+valeurs_calees_y = [i for _,i in sorted(zip(valeurs_calees_x, valeurs_calees_y))]
+valeurs_calees_x = sorted(valeurs_calees_x)
+
+_plot(valeurs_calees_x, valeurs_calees_y, DIR + '_newcalage.pdf', xlabel = "Temps (s)", ylabel = "Amplitude en V")
 np.savetxt(DIR + '_newcalage.csv', np.column_stack((valeurs_calees_x, valeurs_calees_y)), delimiter=";")
+
+nombredevaleur = len(valeurs_calees_y)
+print('nombre de valeurs', nombredevaleur)
+
+
+Ne = len(valeurs_calees_y)
+frequences = np.array(valeurs_calees_x) * 1.0 / (Te * Ne)
+spectre = np.fft.fft(valeurs_calees_y) / Ne
+_plot(frequences, np.abs(spectre), DIR + '_fft.pdf', xlabel = "Frequence en MHz", ylabel = "Amplitude en V")
+np.savetxt(DIR + '_fft.csv', np.abs(spectre), delimiter=",")
+
+
+print('delta t', Te)
+print('Points', Ne)
+
+Max = max(valeurs_calees_y)
+print('amplitude max', Max)
+
+Min = min(valeurs_calees_y)
+print('amplitude min', Min)
+
+
+	
+energies = []
+for i in range(len(valeurs_calees_y) - 1):
+  area = (valeurs_calees_y[i]**2 + valeurs_calees_y[i+1]**2) * (valeurs_calees_x[i+1] - valeurs_calees_x[i]) / 2
+  energies.append(area)
+
+
+_plot(valeurs_calees_x[:-1], energies, DIR + '_calage_energies.pdf', xlabel = "Temps en s", ylabel = "Energie en V^2*s")
+np.savetxt(DIR + '_calage_energies.csv', np.column_stack((valeurs_calees_x[:-1], valeurs_calees_y[:-1], energies)), delimiter=";")
+
+
+Coups = 0
+for i in valeurs_calees_y:
+  if i > ThresholdMax or i < ThresholdMin:
+    Coups = Coups + 1
+
+CrossThresholdStart = 0
+test = True
+while valeurs_calees_y[CrossThresholdStart] < ThresholdMax and valeurs_calees_y[CrossThresholdStart] > ThresholdMin and CrossThresholdStart < len(valeurs_calees_y) - 1:
+  CrossThresholdStart += 1
+
+CrossThresholdEnd = len(valeurs_calees_y) - 1
+while valeurs_calees_y[CrossThresholdEnd] < ThresholdMax and valeurs_calees_y[CrossThresholdEnd] > ThresholdMin and CrossThresholdEnd > 0:
+  CrossThresholdEnd -= 1
+
+CrossMax = 0
+while valeurs_calees_y[CrossMax] != Max and CrossMax < len(valeurs_calees_y) - 1:
+  CrossMax += 1
+
+print ('CrossThresholdStart', CrossThresholdStart)
+print ('CrossMax', CrossMax)
+print ('CrossThresholdEnd', CrossThresholdEnd)
 
 exit(0)
 
