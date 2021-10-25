@@ -48,6 +48,10 @@ def _plot_reg(x, y, out_file, bbox_inches = 'tight', metadata = dict(), xlim = N
   ax.plot(x, slope * x + intercept)
   if xlim != None:
     plt.xlim(xlim)
+  if xlabel != None:
+    plt.xlabel(xlabel)
+  if ylabel != None:
+    plt.ylabel(ylabel)
   fig.savefig(out_file, bbox_inches = bbox_inches, metadata = {**metadata, 'CreationDate': None})
   plt.close()
   return slope, intercept
@@ -70,8 +74,8 @@ args = parser.parse_args()
 DIR=args.dir + '/'
 
 # FileDuration = 240 milliseconds
-ThresholdMax = 0.1
-ThresholdMin = -0.1
+ThresholdMax = 0.005
+ThresholdMin = -0.005
 
 files = glob.glob(DIR + '/*.csv')
 files = sorted(files, key = sort_func)
@@ -118,8 +122,12 @@ for i in range(len(relative_dates)):
 		valeurs_calees_y.append(all_values[i][j])
 		valeurs_calees_x.append((j + incr)*Te)
 
-#print(valeurs_calees_y[50000:50100])
-#print(valeurs_calees_x[50000:50100])
+vals = dict()
+for i in range(len(valeurs_calees_y)):
+	vals[valeurs_calees_x[i]] = valeurs_calees_y[i]
+
+valeurs_calees_x = vals.keys()
+valeurs_calees_y = vals.values()
 
 valeurs_calees_y = [i for _,i in sorted(zip(valeurs_calees_x, valeurs_calees_y))]
 valeurs_calees_x = sorted(valeurs_calees_x)
@@ -163,9 +171,7 @@ coups = []
 for i in valeurs_calees_y:
   if i > ThresholdMax or i < ThresholdMin:
     Coups = Coups + 1
-  else:
-    Coups = Coups + 0
-    coups.append(Coups)
+  coups.append(Coups)
 	
 _plot(valeurs_calees_x, coups, DIR + '_calage_coups.pdf', xlabel = "Temps en s", ylabel = "Nombre de coups")
 np.savetxt(DIR + '_calage_coups.csv', np.column_stack((valeurs_calees_x, valeurs_calees_y, coups)), delimiter=";")
@@ -186,6 +192,21 @@ while valeurs_calees_y[CrossMax] != Max and CrossMax < len(valeurs_calees_y) - 1
 print ('CrossThresholdStart', CrossThresholdStart)
 print ('CrossMax', CrossMax)
 print ('CrossThresholdEnd', CrossThresholdEnd)
+
+
+
+y0 = np.abs(valeurs_calees_y)
+min_ = np.min(y0[y0 > 0])
+log_Ne = np.log(np.arange(1, len(valeurs_calees_y) + 1))
+y0[y0 == 0] = min_
+log_y0 = np.log(np.sort(y0)[::-1])
+a, b = _plot_reg(log_Ne, log_y0, DIR + '_rif_nn.pdf')
+print('slope', a)
+print('intercept', b)
+
+
+
+
 
 exit(0)
 
@@ -277,11 +298,3 @@ _plot(frequences, np.abs(spectre), DIR + '_fft.pdf')
 np.savetxt(DIR + '_fft.csv', np.abs(spectre), delimiter=",")
 
 
-y0 = np.abs(y0)
-min_ = np.min(y0[y0 > 0])
-log_Ne = np.log(np.arange(1, Ne + 1))
-y0[y0 == 0] = min_
-log_y0 = np.log(np.sort(y0)[::-1])
-a, b = _plot_reg(log_Ne, log_y0, DIR + '_rif_nn.pdf')
-print('slope', a)
-print('intercept', b)
