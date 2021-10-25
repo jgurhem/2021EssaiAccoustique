@@ -27,7 +27,7 @@ def readfile(path, mint, maxt):
       coupsint = coupsint + 1
   return v, t, data, coupsint
 
-def _plot(x, y, out_file, bbox_inches = 'tight', metadata = dict(), xlim = None):
+def _plot(x, y, out_file, bbox_inches = 'tight', metadata = dict(), xlim = None, xlabel = None, ylabel = None):
   fig = plt.figure()
   ax = fig.gca()
   ax.plot(x, y)
@@ -36,7 +36,7 @@ def _plot(x, y, out_file, bbox_inches = 'tight', metadata = dict(), xlim = None)
   fig.savefig(out_file, bbox_inches = bbox_inches, metadata = {**metadata, 'CreationDate': None})
   plt.close()
 
-def _plot_reg(x, y, out_file, bbox_inches = 'tight', metadata = dict(), xlim = None):
+def _plot_reg(x, y, out_file, bbox_inches = 'tight', metadata = dict(), xlim = None, xlabel = None, ylabel = None):
   fig = plt.figure()
   ax = fig.gca()
   ax.plot(x, y)
