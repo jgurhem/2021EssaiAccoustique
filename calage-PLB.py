@@ -69,13 +69,16 @@ parser = argparse.ArgumentParser()
 parser.add_argument('dir', type=str, help='path to the directory containing the csv files')
 parser.add_argument('-s', type=int, help='first file to consider', dest='start', default=0)
 parser.add_argument('-e', type=int, help='last file to consider', dest='end', default=None)
+parser.add_argument('-tmin', type=float, help='threshold min', dest='tmin', required=True)
+parser.add_argument('-tmax', type=float, help='threshold max', dest='tmax', required=True)
+parser.add_argument('-te', type=float, help='Te', dest='te', required=True)
 args = parser.parse_args()
 
 DIR=args.dir + '/'
 
 # FileDuration = 240 milliseconds
-ThresholdMax = 0.005
-ThresholdMin = -0.005
+ThresholdMax = args.tmin
+ThresholdMin = args.tmax
 
 files = glob.glob(DIR + '/*.csv')
 files = sorted(files, key = sort_func)
@@ -86,7 +89,7 @@ all_values = []
 dates = []
 coups = []
 
-Te = 5**(-6)
+Te = args.te
 
 if len(files) < 1:
   sys.exit(0)
