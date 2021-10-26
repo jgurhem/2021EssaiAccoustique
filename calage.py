@@ -66,9 +66,8 @@ args = parser.parse_args()
 DIR=args.dir + '/'
 
 # FileDuration = 240 milliseconds
-FileDuration = 0.25
-ThresholdMax = 0.05
-ThresholdMin = -0.05
+ThresholdMax = 0.01
+ThresholdMin = -0.01
 
 files = glob.glob(DIR + '/*.csv')
 files = sorted(files, key = sort_func)
