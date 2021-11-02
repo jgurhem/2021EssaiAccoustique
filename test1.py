@@ -77,7 +77,6 @@ files = files[args.start:args.end]
 y0 = []
 all_values = []
 dates = []
-coups = []
 
 Te = 10**(-7)
 
@@ -90,7 +89,6 @@ for f in files:
   y0.append(d[0])
   dates.append(d[1])
   all_values.append(d[2])
-  coups.append(d[3])
 
 print(dates)
 relative_dates = []
@@ -115,9 +113,18 @@ print('amplitude max', Max)
 Min = min(y0)
 print('amplitude min', Min)
 
-
-
-print(coups)
+for i in range(len(y0)):
+  if y0[i] == Max:
+    print('date du max :', relative_dates[i])
+    print('fichier :', files[i])
+	
+Amax = []
+for i in range(len(y0)):
+  if y0[i] > ThresholdMax or y0[i] < ThresholdMin:
+    Amax.append(y0[i])
+  else:
+    Amax.append(0)
+	
 	
 energies = []
 for i in range(len(all_values)):
@@ -131,8 +138,15 @@ np.savetxt(DIR + '_calage.csv', np.column_stack((relative_dates[:-1], y0)), deli
 _plot(relative_dates[:-1], energies, DIR + '_calage_energies.pdf')
 np.savetxt(DIR + '_calage_energies.csv', np.column_stack((relative_dates[:-1], energies)), delimiter=";")
 
-_plot(relative_dates[:-1], coups, DIR + '_calage_coups.pdf')
-np.savetxt(DIR + '_calage_coups.csv', np.column_stack((relative_dates[:-1], coups)), delimiter=";")
+_plot(y0, energies, DIR + '_calage_amplimaxenergiesenergies.pdf')
+np.savetxt(DIR + '_calage_amplimaxenergies.csv', np.column_stack((y0, energies)), delimiter=";")
+
+
+for i in range(len(all_values)):
+	for j in all_values[i]:
+		if j > ThresholdMax or j < ThresholdMin:
+			_plot(relative_dates[i] + np.arange(50000) / 50000 * (relative_dates[i+1] - relative_dates[i]), all_values[i], files[i] + '_pass-threshold.pdf')
+			break;
 
 exit(0)
 
@@ -197,4 +211,4 @@ a, b = _plot_reg(log_Ne, log_y0, DIR + '_rif_nn.pdf')
 print('slope', a)
 print('intercept', b)
 
-# python traitementsimple.py c:\Users\Anne-Claire\Documents\acoustiquedu21 -s 3170 -e 3200
+# python test1.py c:\Users\Anne-Claire\Documents\acoustiquedu21 -s 3170 -e 3200
