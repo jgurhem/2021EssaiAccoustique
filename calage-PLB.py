@@ -145,6 +145,9 @@ Ne = len(valeurs_calees_y)
 frequences = np.array(valeurs_calees_x) * 1.0 / (Te * Ne)
 spectre = np.fft.fft(valeurs_calees_y) / Ne
 _plot(frequences, np.abs(spectre), DIR + '_fft.pdf', xlabel = "Frequence en MHz", ylabel = "Amplitude en V")
+rs = int(0 * len(frequences))
+re = int(1 * len(frequences))
+_plot(frequences[rs:re], np.abs(spectre)[rs:re], DIR + '_fft.pdf', xlabel = "Frequence en MHz", ylabel = "Amplitude en V")
 np.savetxt(DIR + '_fft.csv', np.abs(spectre), delimiter=",")
 
 
